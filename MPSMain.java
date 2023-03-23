@@ -2,16 +2,17 @@ import java.util.Scanner;
 public class MPSMain {
     public static void main(String[] args) {
         Scanner input = new Scanner(System.in);
-        // Declare objects to be used in the main
+        // Declare objects and variables to be used in the main 
         final String STU_IMPORT_FILENAME = "StudentList.txt";
         final String FOOD_IMPORT_FILENAME = "FoodList.txt";
         MPS mps = new MPS(STU_IMPORT_FILENAME, FOOD_IMPORT_FILENAME);
         //sentinel value to end the loop
         boolean exit = false;
         int mpsOption = 0, accountOption = 0, studentID = 0, status = 0, receiver = 0, sender = 0, foodID = 0;
-        double amt = 0;
+        double amt;
         // While loop that loops throughout until the user enters "3"
         while (exit != true) {
+            //Main Screen where the user enters an integer and is taken to their option
             System.out.println("============================================");
             System.out.println("|              MEAL PLAN SYSTEM            |");
             System.out.println("============================================");
@@ -20,9 +21,11 @@ public class MPSMain {
             System.out.println("3. Exit");
             System.out.print("Your Option: ");
             mpsOption = input.nextInt();
-            //Account option needs to be set to 0 so the user may re-enter it after exiting prior
+            /*Account option needs to be set to 0 so the user may re-enter main after 
+            exiting prior*/
             accountOption = 0;
-            //IF the user enters option 1, they will be displayed a list of all the available foods and be made to enter their student ID and food ID of choice
+            /*IF the user enters option 1, they will be presented with a list of all 
+            the available foods and be made to enter their student ID and food ID of choice*/
             if (mpsOption == 1) {
                mps.DisplayAllFoodInfo();
                System.out.print("Enter Student ID: ");
@@ -30,15 +33,16 @@ public class MPSMain {
                System.out.print("\nEnter Food ID: ");
                foodID = input.nextInt();
                status = mps.PurchaseFood(studentID, foodID);
-               //switch statment that handles the return values from the method "PurchaseFood" in mps
+               /*switch statment that handles the return values from the method "PurchaseFood" in mps
+               and prints messages accordingly*/
                switch (status) {
-                  case 0 :
+                  case MPS.FOOD_NOT_EXIST :
                      System.out.println("The food ID doesn't exist in the database!");
                      break;
-                  case 1 :
+                  case MPS.SUCCESSFUL :
                      System.out.println("Purchased! Your new balance is $" + mps.GetStuBal(studentID));
                      break;
-                  case -2 :
+                  case MPS.STUDENT_NOT_EXIST :
                      System.out.println("The student ID doesn't exist in the database!");
                      break;
                   case -4 :
@@ -49,7 +53,9 @@ public class MPSMain {
             }
             //IF the user enters 2 they will be presented with an account options screen
             else if (mpsOption == 2) {
-                //In order to stay in the account options screen, a loop is necessary, then, when they enter 5, the program will not enter the loop and return back to the MPS main screen
+                /*In order to stay in the account options screen, a loop is necessary. 
+                Then, when they enter 5, the program will not enter the loop and return 
+                back to the MPS main screen*/
                 while (accountOption != 5) {
                     System.out.println("=============================================");
                     System.out.println("|              ACCOUNT OPTIONS              |");
@@ -60,21 +66,30 @@ public class MPSMain {
                     System.out.println("=============================================");
                     System.out.print("Your Option: ");
                     accountOption = input.nextInt();
-                    //IF accountOption is 1 they will be presented with all the information for every student. This is done by calling the method "DisplayAllStudentInfo"
-                    if (accountOption == 1) {
+                    /* If statement that handles all the invalid values before it proceeds
+                    and displays an appropriate warning message*/
+                    if (accountOption < 1 || accountOption > 5){
+                     System.out.println("Enter a valid option!");
+                    }
+                    /*Else if accountOption is 1 they will be presented with all the information
+                     for every student. This is done by calling the method "DisplayAllStudentInfo"*/
+                    else if (accountOption == 1) {
                         System.out.println("---------------------------------------------");
                         System.out.println("|             All Students Info             |");
                         System.out.println("---------------------------------------------");
                         mps.DisplayAllStudentInfo();
                         System.out.println("");
                     }
-                    //IF the user enters 2 they will be presented with an account info screen, where they will be prompted to enter their student id and will then be able to view their history
+                    /*Else if the user enters 2 they will be presented with an account info screen,
+                     where they will be prompted to enter their student id and will then be able to view
+                      their history*/
                     else if (accountOption == 2) {
                         System.out.println("---------------------------------------------");
                         System.out.println("|                Account Info               |");
                         System.out.println("---------------------------------------------");
                         System.out.print("Student ID: ");
                         studentID = input.nextInt();
+                        //If statement that checks if the student ID is valid
                         if (mps.IsStuExist(studentID)) {
                             System.out.printf("\n%-10s:%18s\n", "Student Name", mps.GetStuNameById(studentID));
                             System.out.printf("%-10s:%15s\n", "Student Balance", mps.GetStuBal(studentID));
@@ -86,7 +101,8 @@ public class MPSMain {
                         } else {
                             System.out.println("Enter a valid Student ID!");
                         }
-                       // If the user enters option 3, they are prompted to enter their student ID and top up amount 
+                       /* If the user enters option 3, they are prompted to enter their 
+                       student ID and top up amount*/ 
                      } else if (accountOption == 3){
                         System.out.println("---------------------------------------------");
                         System.out.println("|                   Top Up                  |");
@@ -98,13 +114,13 @@ public class MPSMain {
                         status = mps.StuBalTopup(studentID, amt);
                         //Switch case that deals with return values for the method "StuBalTopup" in MPS
                         switch (status) {
-                           case 1 :
+                           case MPS.SUCCESSFUL :
                               System.out.println("Top Up Successful! Your new balance is $" + mps.GetStuBal(studentID));
                               break;
-                           case -2 :
+                           case MPS.STUDENT_NOT_EXIST :
                               System.out.println("Enter a valid student ID!");
                               break;
-                           case -3 :
+                           case MPS.INVALID_AMT :
                               System.out.println("Enter a valid amount");
                               break;
                         }
@@ -119,13 +135,13 @@ public class MPSMain {
                       status = mps.TransMoney(sender, receiver, amt);
                       //Switch case that deals with return values for the method "TransMoney" in MPS
                       switch (status) {
-                         case 1 :
+                         case MPS.SUCCESSFUL :
                          System.out.println("Transfer Successful! Your new balance is $" + mps.GetStuBal(sender));
                          break;
-                         case -2 :
+                         case MPS.STUDENT_NOT_EXIST :
                          System.out.println("Sender student ID doesn't exist in the database!");
                          break;
-                         case -3 :
+                         case MPS.INVALID_AMT :
                          System.out.println("Enter a valid amount!");
                          break;
                          case -4 :
